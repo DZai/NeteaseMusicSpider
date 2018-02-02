@@ -8,6 +8,14 @@ Features:
 
 2. can resume last fetch if it did not finish successfully
 
+How  To Run:
+
+1. Delete the ./out dir(including all the files in it)
+
+2. Run the main.py and wait for it finishes, Please note that it can take 2 days to get the job done
+
+3. please kindly help commit the new ./out folder to this repository if possible
+
 
 TBD:
 
