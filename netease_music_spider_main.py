@@ -7,7 +7,9 @@ import warnings
 from netease_music_get_song_comment import get_comment_number
 from netease_music_spider_app_state import get_state_category, get_state_page,\
     get_state_hot_songs, get_state_total_songs, save_state_total_songs,\
-    save_state_hot_songs, save_state_category, save_state_page
+    save_state_hot_songs, save_state_category, save_state_page,\
+    FILE_HOT_SONGS_100000, FILE_HOT_SONGS_80000, FILE_HOT_SONGS_60000,\
+    FILE_HOT_SONGS_40000, FILE_HOT_SONGS_20000
 
 def len_zh(check_str):
     count = 0
@@ -24,9 +26,6 @@ BASE_URL = 'http://music.163.com/'
 # global session object for use
 SESSION = requests.session()
 
-# filter songs with comments count greater than 100000
-COMMENT_COUNT_LMT = 100000
-
 FETCHED_SONGS = "fetched_songs.txt"
 
 # pages to fetch for each category
@@ -42,7 +41,8 @@ url_categories_language = [ CATEGORY_BASE_URL + "华语" + CATEGORY_SUFFIX,\
               CATEGORY_BASE_URL + "日语" + CATEGORY_SUFFIX,\
               CATEGORY_BASE_URL + "韩语" + CATEGORY_SUFFIX,\
               CATEGORY_BASE_URL + "粤语" + CATEGORY_SUFFIX,\
-              CATEGORY_BASE_URL + "小语种" + CATEGORY_SUFFIX ]
+              CATEGORY_BASE_URL + "小语种" + CATEGORY_SUFFIX,\
+            ]
 
 url_categories_style = [CATEGORY_BASE_URL + "流行" + CATEGORY_SUFFIX,\
               CATEGORY_BASE_URL + "摇滚" + CATEGORY_SUFFIX,\
@@ -67,7 +67,8 @@ url_categories_style = [CATEGORY_BASE_URL + "流行" + CATEGORY_SUFFIX,\
               CATEGORY_BASE_URL + "New%20Age" + CATEGORY_SUFFIX,\
               CATEGORY_BASE_URL + "古风" + CATEGORY_SUFFIX,\
               CATEGORY_BASE_URL + "后摇" + CATEGORY_SUFFIX,\
-              CATEGORY_BASE_URL + "Bossa%20Nova" + CATEGORY_SUFFIX]
+              CATEGORY_BASE_URL + "Bossa%20Nova" + CATEGORY_SUFFIX,\
+            ]
 
 url_categories_feel = [CATEGORY_BASE_URL + "怀旧" + CATEGORY_SUFFIX,\
               CATEGORY_BASE_URL + "清新" + CATEGORY_SUFFIX,\
@@ -81,7 +82,8 @@ url_categories_feel = [CATEGORY_BASE_URL + "怀旧" + CATEGORY_SUFFIX,\
               CATEGORY_BASE_URL + "兴奋" + CATEGORY_SUFFIX,\
               CATEGORY_BASE_URL + "快乐" + CATEGORY_SUFFIX,\
               CATEGORY_BASE_URL + "安静" + CATEGORY_SUFFIX,\
-              CATEGORY_BASE_URL + "思念" + CATEGORY_SUFFIX]
+              CATEGORY_BASE_URL + "思念" + CATEGORY_SUFFIX,\
+            ]
 
 url_categories_background = [CATEGORY_BASE_URL + "影视原声" + CATEGORY_SUFFIX,\
               CATEGORY_BASE_URL + "ACG" + CATEGORY_SUFFIX,\
@@ -124,7 +126,11 @@ if __name__ == '__main__':
     
     start_category = get_state_category() 
     start_page = get_state_page() 
-    hot_songs = get_state_hot_songs()
+    all_hot_songs = get_state_hot_songs(FILE_HOT_SONGS_100000)
+    all_hot_songs.update(get_state_hot_songs(FILE_HOT_SONGS_80000))
+    all_hot_songs.update(get_state_hot_songs(FILE_HOT_SONGS_60000))
+    all_hot_songs.update(get_state_hot_songs(FILE_HOT_SONGS_40000))
+    all_hot_songs.update(get_state_hot_songs(FILE_HOT_SONGS_20000))
     all_songs = get_state_total_songs()
     url_all_categories = url_categories_background + url_categories_feel + url_categories_language + url_categories_style
     for cate_index in range(start_category, len(url_all_categories)):
@@ -138,15 +144,28 @@ if __name__ == '__main__':
                 all_songs = all_songs + 1
                 print("new song id " + song_id + ", totally " + str(all_songs) + " songs...")
                 save_state_total_songs(all_songs)
-                if(comment_num > COMMENT_COUNT_LMT):
+                hot_song_file = None
+                if comment_num > 100000:
+                    hot_song_file = FILE_HOT_SONGS_100000
+                elif comment_num > 80000:
+                     hot_song_file = FILE_HOT_SONGS_80000
+                elif comment_num > 60000:
+                    hot_song_file = FILE_HOT_SONGS_60000
+                elif comment_num > 40000:
+                    hot_song_file = FILE_HOT_SONGS_40000
+                elif comment_num > 20000:
+                    hot_song_file = FILE_HOT_SONGS_20000
+                else:
+                    pass
+                if hot_song_file:
                     song_key = song_id + " " + page_song_list[song_id]
-                    if(song_key in hot_songs):
+                    if(song_key in all_hot_songs):
                         print(song_key +" already exists, pass")
                     else:
-                        hot_songs[song_key] = comment_num
-                        song_record = "歌曲ID：" + song_id.ljust(10) + "歌名：" + page_song_list[song_id].ljust(40 - int(len_zh(page_song_list[song_id])/2)) + "评论数：" + str(hot_songs[song_key]).ljust(8)
+                        all_hot_songs[song_key] = comment_num
+                        song_record = "歌曲ID：" + song_id.ljust(10) + "歌名：" + page_song_list[song_id].ljust(40 - int(len_zh(page_song_list[song_id])/2)) + "评论数：" + str(all_hot_songs[song_key]).ljust(8)
                         print(song_record)
-                        save_state_hot_songs(song_record)
+                        save_state_hot_songs(hot_song_file, song_record)
         start_page = 0
     print("All Done, totally songs parsed: " + str(all_songs))
     

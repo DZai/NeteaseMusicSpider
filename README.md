@@ -4,17 +4,17 @@ python 3.5 Netease Music Spider, which fetches the songs with highest comment nu
 
 Features: 
 
-1. Fetch songs which have more than 100,000 comments, and save to hot_songs.txt
+1. Fetch songs which have more than 100,000/80,000/60,000/40,000/20,000 comments, and save to files
 
-2. can resume last fetch if id did not finish successfully
+2. can resume last fetch if it did not finish successfully
 
 
 TBD:
 
 1. add function to spide only some specified categories
 
-2. add function to spide more songs, say, songs with more than 10,000+ comments
+#2. add function to spide more songs, say, songs with more than 10,000+ comments
 
 3. add function to download the songs' mp3 files automatically
 
-4. TBD..
+4. More
