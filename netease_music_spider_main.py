@@ -2,6 +2,7 @@
 # -*- coding: UTF-8 -*- 
 
 from bs4 import BeautifulSoup
+from selenium import webdriver
 import requests
 import warnings
 from netease_music_get_song_comment import get_comment_number
@@ -105,11 +106,17 @@ url_categories_background = [CATEGORY_BASE_URL + "影视原声" + CATEGORY_SUFFI
 
 def get_song_list_for_page(url):
     songIdList = dict()
-    soup = BeautifulSoup(SESSION.get(url).content)
-    aList = soup.findAll('a', attrs={'class': 'tit f-thide s-fc0'})
-    for a in aList:
-        uri = a['href']
-        playListUrl = BASE_URL + uri[1:]
+    
+    driver=webdriver.Chrome('./chromedriver')
+    html=driver.get(url)
+
+    driver.switch_to.frame('contentFrame')
+    aList = list()
+    for element in driver.find_elements_by_class_name('msk'):
+        aList.append(element.get_attribute('href'))
+    driver.quit()
+
+    for playListUrl in aList:
         #print("processing play list " + playListUrl)
         soup = BeautifulSoup(SESSION.get(playListUrl,headers = headers).content) 
         ul = soup.find('ul',{'class':'f-hide'}) 
