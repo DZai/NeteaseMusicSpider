@@ -8,6 +8,16 @@ Features:
 
 2. can resume last fetch if it did not finish successfully
 
+Pre-requirements:
+
+1. python3
+
+2. selenium package for python3
+
+3. chrome browser
+
+4. GUI ( not sure if mandatory)
+
 How  To Run:
 
 1. Delete the ./out dir(including all the files in it)
